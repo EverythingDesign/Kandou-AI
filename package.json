@@ -1,0 +1,28 @@
+{
+  "name": "kandou-webflow-dev",
+  "version": "1.0.0",
+  "description": "Kandou development environment and Webflow integration workflow",
+  "main": "index.js",
+  "scripts": {
+    "kill": "lsof -t -i tcp:3000,3001 | xargs kill -9 2>/dev/null || true",
+    "serve": "serve -l 3000 --cors codes",
+    "proxy": "local-ssl-proxy --source 3001 --target 3000 --cert localhost.pem --key localhost-key.pem",
+    "dev": "npm run kill && concurrently --kill-others \"npm run serve\" \"npm run proxy\"",
+    "build": "node build.js",
+    "watch": "node build.js --watch"
+  },
+  "keywords": [
+    "kandou",
+    "webflow",
+    "esbuild",
+    "local-ssl-proxy"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.21.5",
+    "local-ssl-proxy": "^2.0.5",
+    "serve": "^14.2.3"
+  }
+}
