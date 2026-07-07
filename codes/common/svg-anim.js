@@ -179,7 +179,7 @@
           glow.setAttribute("stroke-width", "1");
           glow.setAttribute("stroke-linecap", "round");
           glow.setAttribute("stroke-linejoin", "round");
-          glow.setAttribute("pathLength", "100");        // normalize length → dash in %
+          glow.setAttribute("pathLength", "-100");        // normalize length → dash in %
           glow.setAttribute("stroke-dasharray", "8 92"); // one ~8%-long lit segment
           glow.classList.add("svglink-trace");
           glow.style.filter =
@@ -202,7 +202,7 @@
           glow.setAttribute("stroke-width", "1");
           glow.setAttribute("stroke-linecap", "round");
           glow.setAttribute("stroke-linejoin", "round");
-          glow.setAttribute("pathLength", "100");
+          glow.setAttribute("pathLength", "-100");       // negative → glow runs left→right (matches fill+stroke path)
           glow.setAttribute("stroke-dasharray", "8 92");
           glow.classList.add("svglink-trace");
           glow.style.filter =

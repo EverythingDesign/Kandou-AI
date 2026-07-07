@@ -1,0 +1,2 @@
+(()=>{(()=>{"use strict";let i=window.innerWidth<=1023;function t(){window.innerWidth<=1023?document.querySelectorAll(".floating-card_wrap_input.is-big-screen, .floating-card_wrap_output.is-big-screen").forEach(e=>e.remove()):document.querySelectorAll(".floating-card_wrap_output.is-small-screen").forEach(e=>e.remove())}function n(){window.innerWidth<=1023!==i&&window.location.reload()}t(),document.readyState==="loading"&&document.addEventListener("DOMContentLoaded",t),window.addEventListener("resize",n)})();})();
+//# sourceMappingURL=load-utils.js.map

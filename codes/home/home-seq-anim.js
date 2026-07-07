@@ -125,3 +125,66 @@ if (window.__seqInit?.["kandou-seq"]) {
         if (detail.label === "kandou-seq") setupHeroAnimations(detail);
     });
 }
+
+
+
+gsap.registerPlugin(ScrollTrigger, Flip);
+
+function initFinalFlip() {
+    const img = document.querySelector('.home-visual-img');
+    const finalFrame = document.querySelector('[final-frame-wrap]');
+    if (!img || !finalFrame) return;
+
+    const homeParent = img.parentElement;   // .hero_canvas — where the image sequence draws
+    let flip;
+
+    const buildFlip = () => {
+        if (flip) flip.kill();
+        const state = Flip.getState(img);   // measured NOW, at sequence end
+        finalFrame.appendChild(img);        // move into the final wrap
+        flip = Flip.from(state, {
+            absolute: true,                   // ← REQUIRED for a sticky/absolute source
+            // NOTE: keep scale OFF. scale:true animates via scaleX/scaleY from one
+            // origin; hero (≈2.0) and final (≈2.6) have different aspect ratios, so
+            // it overshoots width and drifts left. width/height mode is geometrically
+            // exact both ways. The reverse-freeze is handled by the progress clamp below.
+            ease: "none",
+            duration: 1
+        });
+        flip.pause(0);                      // we scrub it manually below
+    };
+
+    // Scrolled back up past the start → hand the image back to the hero so the
+    // sequence can drive it again. Without this the img stays parented in the
+    // final wrap (just overlaid at the hero spot) and the sequence looks frozen.
+    const resetHome = () => {
+        if (flip) { flip.kill(); flip = null; }
+        gsap.set(img, { clearProps: "all" });   // strip flip's inline transform/position/size
+        homeParent.appendChild(img);            // back into .hero_canvas
+    };
+
+    ScrollTrigger.create({
+        trigger: ".home-seq-trigger",
+        start: "bottom bottom",
+        // endTrigger: "#storyline",            // right where the sequence finishes
+        // end: "top center",                  // scrub range for the hand-off
+        end: "bottom center",                  // scrub range for the hand-off
+        scrub: true,
+        onEnter: () => { if (!flip) buildFlip(); },
+        onEnterBack: () => { if (!flip) buildFlip(); },   // built even if we arrive scrolled-past
+        // Clamp just under 1 so Flip never fires onComplete (which tears down the
+        // absolute wrapper and freezes width on the way back up). 0.999 = ~0.07px
+        // off the final rest position — imperceptible, and it stays fully reversible.
+        onUpdate: (self) => { if (flip) flip.progress(self.progress * 0.999); },
+        onLeaveBack: () => resetHome()      // ← back into the sequence: return img to hero
+    });
+}
+
+// Actually run it — this was defined but never called.
+if (window.Webflow && window.Webflow.push) {
+    window.Webflow.push(initFinalFlip);
+} else if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initFinalFlip);
+} else {
+    initFinalFlip();
+}
