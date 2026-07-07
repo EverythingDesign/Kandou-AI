@@ -179,8 +179,9 @@
           glow.setAttribute("stroke-width", "1");
           glow.setAttribute("stroke-linecap", "round");
           glow.setAttribute("stroke-linejoin", "round");
-          glow.setAttribute("pathLength", "-100");        // normalize length → dash in %
+          glow.setAttribute("pathLength", "100");         // normalize path to 100 → dash reads as %
           glow.setAttribute("stroke-dasharray", "8 92"); // one ~8%-long lit segment
+          glow.style.animationDirection = "reverse";     // glow travels left→right
           glow.classList.add("svglink-trace");
           glow.style.filter =
             `drop-shadow(0 0 3px rgba(${hexRgb(base)}, 0.75)) drop-shadow(0 0 8px rgba(${hexRgb(base)}, 0.45))`;
@@ -202,8 +203,9 @@
           glow.setAttribute("stroke-width", "1");
           glow.setAttribute("stroke-linecap", "round");
           glow.setAttribute("stroke-linejoin", "round");
-          glow.setAttribute("pathLength", "-100");       // negative → glow runs left→right (matches fill+stroke path)
+          glow.setAttribute("pathLength", "100");         // normalize path to 100 → dash reads as %
           glow.setAttribute("stroke-dasharray", "8 92");
+          glow.style.animationDirection = "reverse";      // glow travels left→right
           glow.classList.add("svglink-trace");
           glow.style.filter =
             `drop-shadow(0 0 3px rgba(${hexRgb(base)}, 0.75)) drop-shadow(0 0 8px rgba(${hexRgb(base)}, 0.45))`;
@@ -211,61 +213,6 @@
         }
       }
     });
-  }
-
-  /* ── Output-signal "settle" morph ────────────────────────────────────────
-     Scrub-morph the garbled red Output meter into the clean green square wave
-     (shape + colour) as `.trigger` scrolls from the viewport bottom (top
-     bottom) to the top (top top). Called straight after the meter is built, so
-     its <svg> tiles already exist — no async race, no MutationObserver. Both
-     scroll tiles morph in lockstep, so the seamless loop + horizontal scroll
-     keep running underneath. */
-
-  // Clean green square-wave targets (same 252×132 viewBox as the red asset).
-  const MORPH_FILL_D = "M0 121.8L6.46 7.71997H12.92H19.38H25.85H32.31L38.77 121.8H45.23H51.69H58.15H64.62L71.08 7.71997H77.54H84H90.46H96.92L103.38 121.8H109.85H116.31H122.77H129.23L135.69 7.71997H142.15H148.62H155.08H161.54L168 121.8H174.46H180.92H187.38H193.85L200.31 7.71997H206.77H213.23H219.69H226.15L232.62 121.8H239.08H245.54H252V128H0V121.8Z";
-  const MORPH_LINE_D = "M0 121.8L6.46 7.71997H12.92H19.38H25.85H32.31L38.77 121.8H45.23H51.69H58.15H64.62L71.08 7.71997H77.54H84H90.46H96.92L103.38 121.8H109.85H116.31H122.77H129.23L135.69 7.71997H142.15H148.62H155.08H161.54L168 121.8H174.46H180.92H187.38H193.85L200.31 7.71997H206.77H213.23H219.69H226.15L232.62 121.8H239.08H245.54H252";
-
-  function setupOutputMorph(el, sourceStroke) {
-    if (el.dataset.morphInit === "1") return;
-    if (typeof gsap === "undefined" || typeof MorphSVGPlugin === "undefined") {
-      console.warn("[svglink] morph skipped — gsap / MorphSVGPlugin not loaded");
-      return;
-    }
-    el.dataset.morphInit = "1";
-    gsap.registerPlugin(MorphSVGPlugin);
-    if (typeof ScrollTrigger !== "undefined") gsap.registerPlugin(ScrollTrigger);
-
-    const GREEN = "#7FB53F";
-    const GLOW_STROKE = `rgb(${lighten(GREEN, 0.5)})`; // matches the trace tint utils builds
-    // Same offset-first shape utils builds the source filter in, so GSAP only
-    // tweens the rgb channels — a color-first form makes it misread the colour
-    // tokens as x/y offsets and drag the glow sideways mid-scrub.
-    const GLOW_FILTER =
-      `drop-shadow(0 0 3px rgba(${hexRgb(GREEN)}, 0.75)) drop-shadow(0 0 8px rgba(${hexRgb(GREEN)}, 0.45))`;
-
-    const trigger = document.querySelector(".trigger") || el;
-    const tl = gsap.timeline({
-      scrollTrigger: { trigger, start: "top bottom", end: "top center", scrub: true },
-    });
-
-    el.querySelectorAll(".svglink-track > svg").forEach((svg) => {
-      const fill = svg.querySelector('path[fill^="url("]');
-      const line = svg.querySelector(`path[stroke="${sourceStroke}"]`);
-      const glow = svg.querySelector("path.svglink-trace");
-      const stops = svg.querySelectorAll("linearGradient stop");
-
-      // svglink-trace animates dashoffset → +100, sweeping the lit segment
-      // right→left; reverse it so the glow travels left→right on this meter.
-      if (glow) glow.style.animationDirection = "reverse";
-
-      if (fill) tl.to(fill, { morphSVG: MORPH_FILL_D, ease: "none" }, 0);
-      if (line) tl.to(line, { morphSVG: MORPH_LINE_D, attr: { stroke: GREEN }, ease: "none" }, 0);
-      if (glow)
-        tl.to(glow, { morphSVG: MORPH_LINE_D, attr: { stroke: GLOW_STROKE }, filter: GLOW_FILTER, ease: "none" }, 0);
-      stops.forEach((s) => tl.to(s, { attr: { "stop-color": GREEN }, ease: "none" }, 0));
-    });
-
-    if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
   }
 
   /** Parse an SVG string into a fill-the-box <svg> node. */
@@ -320,10 +267,12 @@
       el.classList.add("svglink-scroller");
       el.replaceChildren(track);
 
-      // Opt-in (data-morph) or auto-detect the red Output meter → settle morph.
-      if (el.dataset.morph === "output" || /red/i.test(url)) {
-        setupOutputMorph(el, base);
-      }
+      // Meter is built — notify listeners (e.g. home/dataflow-anim.js) so
+      // page-specific behaviour (the Output settle morph) can hook in.
+      el.dispatchEvent(new CustomEvent("svglink:inlined", {
+        bubbles: true,
+        detail: { el, url, base },
+      }));
 
     } catch (err) {
       el.dataset.svgInlined = ""; // release so a later refresh() can retry
