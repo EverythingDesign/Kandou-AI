@@ -2,7 +2,8 @@ const sectionTrigger = document.querySelector("#dataflow");
 const container = document.querySelector("#h-data-container");
 const triggerGroup = document.querySelectorAll("[trigger-group='home']");
 // const rivSrc = "https://cdn.prod.website-files.com/69d76d29d92505bbfe2e7d5f/6a46430975ad0288de910050_kandou_-_homepage_3.riv";
-const rivSrc = "https://cdn.prod.website-files.com/69d76d29d92505bbfe2e7d5f/6a4b57a86c9047277fdd61ff_kandou_-_homepage_4.riv";
+// const rivSrc = "https://cdn.prod.website-files.com/69d76d29d92505bbfe2e7d5f/6a4b57a86c9047277fdd61ff_kandou_-_homepage_4.riv";
+const rivSrc = "https://cdn.prod.website-files.com/69d76d29d92505bbfe2e7d5f/6a4cd9078594b6c1a567ceaf_kandou_-_homepage_8.riv";
 
 const canvas = document.createElement("canvas");
 container.appendChild(canvas);

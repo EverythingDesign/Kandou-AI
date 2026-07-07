@@ -1,4 +1,5 @@
 function homeEntranceAnimation(headingWrap, secondaryWrap = null, endColor = "#ffffff") {
+    console.log("gvh")
     // If the second argument is a color string, shift the parameter
     if (typeof secondaryWrap === "string" && (secondaryWrap.startsWith("#") || secondaryWrap.startsWith("rgb") || secondaryWrap.startsWith("hsl"))) {
         endColor = secondaryWrap;

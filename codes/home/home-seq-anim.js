@@ -1,19 +1,10 @@
-// gsap.set("[detected-info]", { opacity: 0 });
-
 function setupHeroAnimations({ frameCount, label }) {
     const startColor = "#6adb2b";
     const endColor = "#ffffff";
 
     const f = (frame) => frame / (frameCount - 1);
 
-    const ANIMATIONS = [
-        // {
-        //     sel: "#home-dialogue-g1-1",
-        //     to: { opacity: 0 },
-        //     start: f(20),
-        //     end: f(70),
-        // },
-    ];
+    const ANIMATIONS = [];
 
     const DIALOGUE_ANIMATIONS = [
         {
@@ -26,25 +17,25 @@ function setupHeroAnimations({ frameCount, label }) {
             sel: "#home-dialogue-g2-1",
             start: f(125),
             end: f(130),
-            out: [f(170), f(210)],
+            out: [f(180), f(220)],
         },
         {
             sel: "#home-dialogue-g2-2",
-            start: f(135),
-            end: f(140),
-            out: [f(170), f(210)],
+            start: f(140),
+            end: f(150),
+            out: [f(180), f(220)],
         },
         {
             sel: "#home-dialogue-g2-3",
-            start: f(145),
-            end: f(150),
-            out: [f(170), f(210)],
+            start: f(160),
+            end: f(170),
+            out: [f(180), f(220)],
         },
         {
             sel: "#home-dialogue-g3-1",
-            start: f(220),
-            end: f(230),
-            out: [f(300), f(340)],
+            start: f(230),
+            end: f(250),
+            out: [f(260), f(275)],
         },
     ];
 
