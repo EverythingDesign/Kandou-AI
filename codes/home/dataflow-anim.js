@@ -62,7 +62,7 @@ function initScroll() {
     //   leaving back past the start          → drop to `from`
     const steps = [
         { el: sectionTrigger, from: -1, to: 0, start: "top 20%", end: "bottom 90%" },   // #dataflow: closed ⇄ open
-        { el: triggerGroup[0], from: 0, to: 1, start: "top center", end: "top 20%" },   // group[0]: open ⇄ inside/data flow
+        { el: triggerGroup[0], from: 0, to: 1, start: "top center", end: "top top" },   // group[0]: green flow
         { el: triggerGroup[2], from: 1, to: 2, start: "top center", end: "top 20%" },   // group[1]: inside ⇄ closing/closed
     ];
 
@@ -72,6 +72,7 @@ function initScroll() {
             trigger: el,
             start: start,
             end: end,
+            // markers: true,
             onEnter: () => setStep(to),
             onEnterBack: () => setStep(to),
             onLeaveBack: () => setStep(from)
@@ -119,311 +120,336 @@ function initDataFlowText() {
         return;
     }
 
-    let h1Chars = dataFlowHeadings[0].querySelectorAll(".char");
-    let h2Chars = dataFlowHeadings[1].querySelectorAll(".char");
+    const checkSplit = () => {
+        const h1Chars = dataFlowHeadings[0].querySelectorAll(".char");
+        const h2Chars = dataFlowHeadings[1].querySelectorAll(".char");
+        return (h1Chars.length > 0 && h2Chars.length > 0) ? { h1Chars, h2Chars } : null;
+    };
 
-    if (h1Chars.length === 0 || h2Chars.length === 0) {
-        if (dataFlowRetries < maxDataFlowRetries) {
-            dataFlowRetries++;
-            setTimeout(initDataFlowText, 20);
-            return;
-        }
-        // Fallbacks if splitting fails
-        h1Chars = h1Chars.length > 0 ? h1Chars : [dataFlowHeadings[0]];
-        h2Chars = h2Chars.length > 0 ? h2Chars : [dataFlowHeadings[1]];
-    }
+    const runDataFlow = (split) => {
+        const h1Chars = split ? split.h1Chars : [dataFlowHeadings[0]];
+        const h2Chars = split ? split.h2Chars : [dataFlowHeadings[1]];
 
-    gsap.set(h2Chars, { opacity: 0 });
-    gsap.set(h1Chars, { opacity: 0 });
-    gsap.set("#dataflow .word", { opacity: 1 });
-    gsap.set(".ab-kandou_wrap", { y: "-5%" });
+        gsap.set(h2Chars, { opacity: 0 });
+        gsap.set(h1Chars, { opacity: 0 });
+        gsap.set("#dataflow .word", { opacity: 1 });
 
-    //the text animations
-    const dataFlowDuration = 1;
-    const dataFlowHeading1 = gsap.timeline({
-        scrollTrigger: {
-            trigger: sectionTrigger,
-            start: "top 75%",
-            end: "top top",
-            scrub: true,
-        }
-    });
+        //the text animations
+        const dataFlowDuration = 1;
+        const dataFlowHeading1 = gsap.timeline({
+            scrollTrigger: {
+                trigger: sectionTrigger,
+                start: "top 75%",
+                end: "top top",
+                scrub: true,
+            }
+        });
 
-    dataFlowHeading1
-        .to(
-            "#home-hero [entrance-content]",
+        dataFlowHeading1
+            .to(
+                "#home-hero [entrance-content]",
+                {
+                    opacity: 0,
+                    duration: 0.5,
+                    ease: "power2.inOut",
+                },
+                0
+            )
+            .to(
+                "#home-hero .home-hero-visual-desktop",
+                {
+                    y: "20%",
+                    duration: 1,
+                    ease: "none",
+                },
+                0
+            )
+            .to(
+                h1Chars,
+                {
+                    opacity: 1,
+                    color: "#6adb2b",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / h1Chars.length },
+                }, 0
+            ).to(
+                h1Chars,
+                {
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / h1Chars.length },
+                },
+                0.4 + (dataFlowDuration * 0.4)
+            );
+
+        const dataFlowHeading2 = gsap.timeline({
+            scrollTrigger: {
+                trigger: triggerGroup[0],
+                start: "top 80%",
+                end: "top 20%",
+                // toggleActions: "play none none reverse",
+                scrub: true,
+            }
+        });
+
+        dataFlowHeading2.to(
+            dataFlowHeadings[0],
             {
                 opacity: 0,
                 duration: 0.5,
                 ease: "power2.inOut",
             },
             0
-        )
-        .to(
-            "#home-hero .home-hero-visual-desktop",
-            {
-                y: "10%",
-                duration: 0.5,
-                ease: "none",
-            },
-            0
-        )
-        .to(
-            ".ab-kandou_wrap",
-            {
-                y: "0%",
-                duration: 1,
-                ease: "power2.inOut",
-            },
-            0
-        )
-        .to(
-            h1Chars,
+        ).to(
+            h2Chars,
             {
                 opacity: 1,
                 color: "#6adb2b",
                 duration: dataFlowDuration * 0.6,
                 ease: "power2.inOut",
-                stagger: { each: dataFlowDuration / h1Chars.length },
-            }, 0
+                stagger: { each: dataFlowDuration / h2Chars.length },
+            },
+            0.2
         ).to(
-            h1Chars,
+            h2Chars,
             {
                 color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
                 duration: dataFlowDuration * 0.6,
                 ease: "power2.inOut",
-                stagger: { each: dataFlowDuration / h1Chars.length },
+                stagger: { each: dataFlowDuration / h2Chars.length },
             },
-            0.4 + (dataFlowDuration * 0.4)
+            0.5 + (dataFlowDuration * 0.4)
         );
 
-    const dataFlowHeading2 = gsap.timeline({
-        scrollTrigger: {
-            trigger: triggerGroup[0],
-            start: "top 80%",
-            end: "top 20%",
-            // toggleActions: "play none none reverse",
-            scrub: true,
-        }
-    });
-
-    dataFlowHeading2.to(
-        dataFlowHeadings[0],
-        {
-            opacity: 0,
-            duration: 0.5,
-            ease: "power2.inOut",
-        },
-        0
-    ).to(
-        h2Chars,
-        {
-            opacity: 1,
-            color: "#6adb2b",
-            duration: dataFlowDuration * 0.6,
-            ease: "power2.inOut",
-            stagger: { each: dataFlowDuration / h2Chars.length },
-        },
-        0.2
-    ).to(
-        h2Chars,
-        {
-            color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
-            duration: dataFlowDuration * 0.6,
-            ease: "power2.inOut",
-            stagger: { each: dataFlowDuration / h2Chars.length },
-        },
-        0.5 + (dataFlowDuration * 0.4)
-    );
-
-    //the signals card
-    const dataSignalsTl = gsap.timeline({
-        scrollTrigger: {
-            trigger: sectionTrigger,
-            start: "top 20%",
-            end: "bottom 90%",
-            // toggleActions: "play none none reverse"
-            scrub: true,
-        }
-    });
-    dataSignalsTl.to(
-        dataSignalCards,
-        {
-            opacity: 1,
-            ease: "power2.inOut",
-        },
-    );
-    const dataSignalOuputStable = gsap.timeline({
-        scrollTrigger: {
-            trigger: triggerGroup[0],
-            start: "top 65%",
-            end: "top center",
-            scrub: true,
-        }
-    });
-    dataSignalOuputStable
-        .to(
-            "[copper-mimo] p",
+        //the signals card
+        const dataSignalsTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: sectionTrigger,
+                start: "top 20%",
+                end: "bottom 90%",
+                // toggleActions: "play none none reverse"
+                scrub: true,
+            }
+        });
+        dataSignalsTl.to(
+            dataSignalCards,
             {
-                color: "#6adb2b",
+                opacity: 1,
                 ease: "power2.inOut",
-            }, 0
-        ).to(
-            "#toggle-button-inner",
-            {
-                x: "100%",
-                backgroundColor: "#6adb2b",
-                ease: "power2.inOut",
-            }, 0
-        ).to(
-            "[dataflow-signal-output='noise']",
+            },
+        );
+        const dataSignalOuputStable = gsap.timeline({
+            scrollTrigger: {
+                trigger: triggerGroup[0],
+                start: "top 65%",
+                end: "top center",
+                scrub: true,
+            }
+        });
+        dataSignalOuputStable
+            .to(
+                "[traditional-link] p",
+                {
+                    color: "#696969",
+                    ease: "power2.inOut",
+                }, 0
+            )
+            .to(
+                "[copper-mimo] p",
+                {
+                    color: "#6adb2b",
+                    ease: "power2.inOut",
+                }, 0
+            )
+            .to(
+                "#toggle-button-inner",
+                {
+                    x: "100%",
+                    backgroundColor: "#6adb2b",
+                    ease: "power2.inOut",
+                }, 0
+            ).to(
+                "[dataflow-signal-output='noise']",
+                {
+                    opacity: 0,
+                    ease: "power2.inOut",
+                }, 0
+            ).to(
+                "[dataflow-signal-output='stable']",
+                {
+                    opacity: 1,
+                    ease: "power2.inOut",
+                }, 0
+            )
+        // .to(
+        //     "[dataflow-signal-output='stable'] .char",
+        //     {
+        //         opacity: 1,
+        //         color: "#6adb2b",
+        //         ease: "power2.inOut",
+        //     }, 0
+        // )
+        // .to(
+        //     "[dataflow-signal-output='stable'] .char",
+        //     {
+        //         opacity: 1,
+        //         color: "#fff",
+        //         ease: "power2.inOut",
+        //     }, 0.4
+        // )
+
+
+        //the powered by card
+        let copperMimoChars = "#copper-mimo .char";
+        const copperMimoTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: triggerGroup[0],
+                start: "center center",
+                endTrigger: triggerGroup[1],
+                end: "top center",
+                scrub: true,
+            }
+        });
+        copperMimoTl.to(
+            dataFlowHeadings,
             {
                 opacity: 0,
                 ease: "power2.inOut",
             }, 0
         ).to(
-            "[dataflow-signal-output='stable']",
+            "#toggle-button",
             {
-                opacity: 1,
+                opacity: 0,
                 ease: "power2.inOut",
             }, 0
         ).to(
-            "[dataflow-signal-output='stable'] .char",
+            dataSignalCards,
             {
-                opacity: 1,
-                color: "#6adb2b",
+                opacity: 0,
                 ease: "power2.inOut",
             }, 0
         )
-        .to(
-            "[dataflow-signal-output='stable'] .char",
-            {
-                opacity: 1,
-                color: "#fff",
-                ease: "power2.inOut",
-            }, 0.4
-        )
+            .to(
+                copperMimoChars,
+                {
+                    opacity: 1,
+                    color: "#6adb2b",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / copperMimoChars.length },
+                }, 0
+            ).to(
+                copperMimoChars,
+                {
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / copperMimoChars.length },
+                },
+                0.4 + (dataFlowDuration * 0.4)
+            ).to(
+                "#copper-mimo p",
+                {
+                    opacity: 1,
+                    duration: 1,
+                    ease: "power2.inOut",
+                }, 0.92
+            )
+        //the hbm chips card
+        let hbmChipsChars = "#hbm-chips .char";
+        const hbmChipsTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: triggerGroup[1],
+                start: "center center",
+                endTrigger: triggerGroup[2],
+                end: "top center",
+                scrub: true,
+            }
+        });
+        hbmChipsTl
+            .to(
+                hbmChipsChars,
+                {
+                    opacity: 1,
+                    color: "#6adb2b",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / hbmChipsChars.length },
+                },
+            ).to(
+                hbmChipsChars,
+                {
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / hbmChipsChars.length },
+                },
+                0.4 + (dataFlowDuration * 0.4)
+            )
 
+        //the new gen ai  card
+        let newGenAIChars = "#new-gen-ai .char";
+        const newGenAITl = gsap.timeline({
+            scrollTrigger: {
+                trigger: triggerGroup[2],
+                start: "center center",
+                endTrigger: triggerGroup[3],
+                end: "top center",
+                scrub: true,
+            }
+        });
+        newGenAITl
+            .to(
+                newGenAIChars,
+                {
+                    opacity: 1,
+                    color: "#6adb2b",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / newGenAIChars.length },
+                },
+            ).to(
+                newGenAIChars,
+                {
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
+                    duration: dataFlowDuration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: dataFlowDuration / newGenAIChars.length },
+                },
+                0.4 + (dataFlowDuration * 0.4)
+            );
+    };
 
-    //the powered by card
-    let poweredByChars = "#powered-by .char";
-    const poweredByTl = gsap.timeline({
-        scrollTrigger: {
-            trigger: triggerGroup[0],
-            start: "top 20%",
-            endTrigger: triggerGroup[1],
-            end: "top top",
-            scrub: true,
+    const initialSplit = checkSplit();
+    if (initialSplit) {
+        runDataFlow(initialSplit);
+        return;
+    }
+
+    // Observe both headings for character splitting
+    const tryResolve = () => {
+        const split = checkSplit();
+        if (split) {
+            obs0.disconnect();
+            obs1.disconnect();
+            clearTimeout(safetyTimeout);
+            runDataFlow(split);
         }
-    });
-    poweredByTl.to(
-        dataFlowHeadings,
-        {
-            opacity: 0,
-            ease: "power2.inOut",
-        }, 0
-    ).to(
-        "#toggle-button",
-        {
-            opacity: 0,
-            ease: "power2.inOut",
-        }, 0
-    ).to(
-        dataSignalCards,
-        {
-            opacity: 0,
-            ease: "power2.inOut",
-        }, 0
-    ).to(
-        poweredByChars,
-        {
-            opacity: 1,
-            color: "#6adb2b",
-            duration: dataFlowDuration * 0.6,
-            ease: "power2.inOut",
-            stagger: { each: dataFlowDuration / poweredByChars.length },
-        }, 0
-    ).to(
-        poweredByChars,
-        {
-            color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
-            duration: dataFlowDuration * 0.6,
-            ease: "power2.inOut",
-            stagger: { each: dataFlowDuration / poweredByChars.length },
-        },
-        0.4 + (dataFlowDuration * 0.4)
-    ).to(
-        "#powered-by p",
-        {
-            opacity: 1,
-            duration: 1,
-            ease: "power2.inOut",
-        },
-    )
-    //the hbm chips card
-    let hbmChipsChars = "#hbm-chips .char";
-    const hbmChipsTl = gsap.timeline({
-        scrollTrigger: {
-            trigger: triggerGroup[1],
-            start: "bottom center",
-            endTrigger: triggerGroup[2],
-            end: "top top",
-            scrub: true,
-        }
-    });
-    hbmChipsTl
-        .to(
-            hbmChipsChars,
-            {
-                opacity: 1,
-                color: "#6adb2b",
-                duration: dataFlowDuration * 0.6,
-                ease: "power2.inOut",
-                stagger: { each: dataFlowDuration / hbmChipsChars.length },
-            },
-        ).to(
-            hbmChipsChars,
-            {
-                color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
-                duration: dataFlowDuration * 0.6,
-                ease: "power2.inOut",
-                stagger: { each: dataFlowDuration / hbmChipsChars.length },
-            },
-            0.4 + (dataFlowDuration * 0.4)
-        )
+    };
 
-    //the new gen ai  card
-    let newGenAIChars = "#new-gen-ai .char";
-    const newGenAITl = gsap.timeline({
-        scrollTrigger: {
-            trigger: triggerGroup[2],
-            start: "bottom center",
-            endTrigger: triggerGroup[3],
-            end: "bottom 80%",
-            scrub: true,
-        }
-    });
-    newGenAITl
-        .to(
-            newGenAIChars,
-            {
-                opacity: 1,
-                color: "#6adb2b",
-                duration: dataFlowDuration * 0.6,
-                ease: "power2.inOut",
-                stagger: { each: dataFlowDuration / newGenAIChars.length },
-            },
-        ).to(
-            newGenAIChars,
-            {
-                color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
-                duration: dataFlowDuration * 0.6,
-                ease: "power2.inOut",
-                stagger: { each: dataFlowDuration / newGenAIChars.length },
-            },
-            0.4 + (dataFlowDuration * 0.4)
-        )
+    const obs0 = new MutationObserver(() => tryResolve());
+    const obs1 = new MutationObserver(() => tryResolve());
 
+    obs0.observe(dataFlowHeadings[0], { childList: true, subtree: true });
+    obs1.observe(dataFlowHeadings[1], { childList: true, subtree: true });
+
+    const safetyTimeout = setTimeout(() => {
+        obs0.disconnect();
+        obs1.disconnect();
+        runDataFlow(null);
+    }, 15000);
 }
 
 // Start polling
@@ -451,9 +477,9 @@ initDataFlowText();
     /** Hex → "r, g, b" string. */
     const hexRgb = (hex) => lighten(hex, 0);
 
-    // Clean green square-wave targets (same 252×132 viewBox as the red asset).
-    const MORPH_FILL_D = "M0 121.8L6.46 7.71997H12.92H19.38H25.85H32.31L38.77 121.8H45.23H51.69H58.15H64.62L71.08 7.71997H77.54H84H90.46H96.92L103.38 121.8H109.85H116.31H122.77H129.23L135.69 7.71997H142.15H148.62H155.08H161.54L168 121.8H174.46H180.92H187.38H193.85L200.31 7.71997H206.77H213.23H219.69H226.15L232.62 121.8H239.08H245.54H252V128H0V121.8Z";
-    const MORPH_LINE_D = "M0 121.8L6.46 7.71997H12.92H19.38H25.85H32.31L38.77 121.8H45.23H51.69H58.15H64.62L71.08 7.71997H77.54H84H90.46H96.92L103.38 121.8H109.85H116.31H122.77H129.23L135.69 7.71997H142.15H148.62H155.08H161.54L168 121.8H174.46H180.92H187.38H193.85L200.31 7.71997H206.77H213.23H219.69H226.15L232.62 121.8H239.08H245.54H252";
+    // Green target (252×80 viewBox), matching the blue/green source assets.
+    const MORPH_FILL_D = "M0 73.8181L6.46 4.67871H12.92H19.38H25.85H32.31L38.77 73.8181H45.23H51.69H58.15H64.62L71.08 4.67871H77.54H84H90.46H96.92L103.38 73.8181H109.85H116.31H122.77H129.23L135.69 4.67871H142.15H148.62H155.08H161.54L168 73.8181H174.46H180.92H187.38H193.85L200.31 4.67871H206.77H213.23H219.69H226.15L232.62 73.8181H239.08H245.54H252V77.5757H0V73.8181Z";
+    const MORPH_LINE_D = "M0 73.8181L6.46 4.67871H12.92H19.38H25.85H32.31L38.77 73.8181H45.23H51.69H58.15H64.62L71.08 4.67871H77.54H84H90.46H96.92L103.38 73.8181H109.85H116.31H122.77H129.23L135.69 4.67871H142.15H148.62H155.08H161.54L168 73.8181H174.46H180.92H187.38H193.85L200.31 4.67871H206.77H213.23H219.69H226.15L232.62 73.8181H239.08H245.54H252";
 
     function setupOutputMorph(el, sourceStroke) {
         if (el.dataset.morphInit === "1") return;
