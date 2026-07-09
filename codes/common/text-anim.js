@@ -112,7 +112,7 @@ function homeEntranceAnimation(headingWrap, secondaryWrap = null, endColor = "#f
 }
 
 
-function commonEntranceAnimation(endColor = "#ffffff") {
+function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff") {
     const headingEl = document.querySelector("[entrance-head]");
     const subheadEl = document.querySelector("[entrance-subhead]");
     const subParaEl = document.querySelector("[entrance-subpara]");
@@ -164,7 +164,7 @@ function commonEntranceAnimation(endColor = "#ffffff") {
                     stagger: { each: duration / headChars.length },
                 }, 0)
                 .to(headChars, {
-                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColor,
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColorHead,
                     duration: duration * 0.6,
                     ease: "power2.inOut",
                     stagger: { each: duration / headChars.length },
@@ -181,7 +181,7 @@ function commonEntranceAnimation(endColor = "#ffffff") {
                     stagger: { each: duration / subChars.length },
                 }, 0)
                 .to(subChars, {
-                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColor,
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColorHead,
                     duration: duration * 0.6,
                     ease: "power2.inOut",
                     stagger: { each: duration / subChars.length },
@@ -208,7 +208,7 @@ function commonEntranceAnimation(endColor = "#ffffff") {
                     stagger: { each: duration / subParaChars.length },
                 }, 0)
                 .to(subParaChars, {
-                    color: (index, target) => target.closest("strong") ? "#010101" : endColor,
+                    color: (index, target) => target.closest("strong") ? "#010101" : endColorPara,
                     duration: duration * 0.6,
                     ease: "power2.inOut",
                     stagger: { each: duration / subParaChars.length },
