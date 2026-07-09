@@ -14,7 +14,7 @@ let stepProp = null;   // the property we drive: { name, type }
 const CLOSED = -1;
 
 const getRiveLayout = () => {
-    const isMobile = window.innerWidth <= 767;
+    const isMobile = window.innerWidth <= 991;
     return new rive.Layout({
         fit: isMobile ? rive.Fit.Cover : rive.Fit.Contain,
         alignment: rive.Alignment.Center
