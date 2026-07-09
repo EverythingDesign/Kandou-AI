@@ -118,7 +118,7 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
     const subParaEl = document.querySelector("[entrance-subpara]");
     const subImgEl = document.querySelector("[entrance-img]");
 
-    if (!headingEl && !subheadEl && !subParaEl && !subImgEl) return;
+    // if (!headingEl && !subheadEl && !subParaEl && !subImgEl) return;
 
     const startColor = "#6adb2b";
     const duration = 0.45;
