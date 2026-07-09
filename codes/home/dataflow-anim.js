@@ -452,8 +452,13 @@ function initDataFlowText() {
     }, 15000);
 }
 
-// Start polling
-initDataFlowText();
+// Wait for DOMContentLoaded so textSplitter() has created .char elements.
+// If the script loaded late (after DOMContentLoaded), call immediately.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDataFlowText);
+} else {
+    initDataFlowText();
+}
 
 
 /* ── Output-signal "settle" morph ────────────────────────────────────────
