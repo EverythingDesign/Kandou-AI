@@ -62,7 +62,7 @@ function initScroll() {
     //   leaving back past the start          → drop to `from`
     const steps = [
         { el: sectionTrigger, from: -1, to: 0, start: "top 20%", end: "bottom 90%" },   // #dataflow: closed ⇄ open
-        { el: triggerGroup[0], from: 0, to: 1, start: "top center", end: "top top" },   // group[0]: green flow
+        { el: triggerGroup[0], from: 0, to: 1, start: "top 60%", end: "top top" },   // group[0]: green flow
         { el: triggerGroup[2], from: 1, to: 2, start: "top center", end: "top 20%" },   // group[1]: inside ⇄ closing/closed
     ];
 
