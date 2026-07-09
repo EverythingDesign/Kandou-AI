@@ -112,5 +112,151 @@ function homeEntranceAnimation(headingWrap, secondaryWrap = null, endColor = "#f
 }
 
 
+function commonEntranceAnimation(endColor = "#ffffff") {
+    const headingEl = document.querySelector("[entrance-head]");
+    const subheadEl = document.querySelector("[entrance-subhead]");
+    const subParaEl = document.querySelector("[entrance-subpara]");
+    const subImgEl = document.querySelector("[entrance-img]");
+
+    if (!headingEl && !subheadEl && !subParaEl && !subImgEl) return;
+
+    const startColor = "#6adb2b";
+    const duration = 0.45;
+
+    const check = () => {
+        const headChars = headingEl ? headingEl.querySelectorAll(".char") : [];
+        const subChars = subheadEl ? subheadEl.querySelectorAll(".char") : [];
+        const subParaChars = subParaEl ? subParaEl.querySelectorAll(".char") : [];
+        // Need at least one element to have chars before we can start
+        const headOk = !headingEl || headChars.length > 0;
+        const subOk = !subheadEl || subChars.length > 0;
+        const subParaOk = !subParaEl || subParaChars.length > 0;
+        return (headOk && subOk && subParaOk) ? { headChars, subChars, subParaChars } : null;
+    };
+
+    const runAnimation = (splitData) => {
+        const headChars = splitData ? splitData.headChars : (headingEl ? [headingEl] : []);
+        const subChars = splitData ? splitData.subChars : (subheadEl ? [subheadEl] : []);
+        const subParaChars = splitData ? splitData.subParaChars : (subParaEl ? [subParaEl] : []);
+
+        const master = gsap.timeline();
+
+        if (headingEl) {
+            gsap.set(headingEl, { opacity: 1 });
+            gsap.set(Array.from(headChars), { opacity: 0 });
+        }
+        if (subheadEl) {
+            gsap.set(subheadEl, { opacity: 1 });
+            gsap.set(Array.from(subChars), { opacity: 0 });
+        }
+        if (subParaEl) {
+            gsap.set(subParaEl, { opacity: 1 });
+            gsap.set(Array.from(subParaChars), { opacity: 0 });
+        }
+
+        if (headChars.length > 0) {
+            master
+                .to(headChars, {
+                    opacity: 1,
+                    color: startColor,
+                    duration: duration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: duration / headChars.length },
+                }, 0)
+                .to(headChars, {
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColor,
+                    duration: duration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: duration / headChars.length },
+                }, duration * 0.4);
+        }
+
+        if (subChars.length > 0) {
+            master
+                .to(subChars, {
+                    opacity: 1,
+                    color: startColor,
+                    duration: duration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: duration / subChars.length },
+                }, 0)
+                .to(subChars, {
+                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColor,
+                    duration: duration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: duration / subChars.length },
+                }, duration * 0.4)
+                .to(subParaEl, {
+                    opacity: 1,
+                    duration: 0.5,
+                    ease: "power1.out",
+                }, ">=")
+                .to(subImgEl, {
+                    opacity: 1,
+                    y: "0%",
+                    duration: 0.5,
+                    ease: "power1.out",
+                }, "<")
+        }
+        if (subParaChars.length > 0) {
+            master
+                .to(subParaChars, {
+                    opacity: 1,
+                    color: startColor,
+                    duration: duration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: duration / subParaChars.length },
+                }, 0)
+                .to(subParaChars, {
+                    color: (index, target) => target.closest("strong") ? "#010101" : endColor,
+                    duration: duration * 0.6,
+                    ease: "power2.inOut",
+                    stagger: { each: duration / subParaChars.length },
+                }, duration * 0.4)
+                .to(subImgEl, {
+                    opacity: 1,
+                    y: "0%",
+                    duration: 0.5,
+                    ease: "power1.out",
+                }, "<0.1")
+        }
+    };
+
+    const initialSplit = check();
+    if (initialSplit) {
+        runAnimation(initialSplit);
+        return;
+    }
+
+    // Chars not ready yet — wait for SplitText to finish with MutationObserver,
+    // debounced 100ms so multi-pass splitting settles before we animate.
+    let settle;
+    const observers = [];
+
+    const onMutation = () => {
+        if (!check()) return;
+        clearTimeout(settle);
+        settle = setTimeout(() => {
+            observers.forEach(o => o.disconnect());
+            clearTimeout(safetyTimeout);
+            runAnimation(check());
+        }, 100);
+    };
+
+    [headingEl, subheadEl].forEach(el => {
+        if (!el) return;
+        const obs = new MutationObserver(onMutation);
+        obs.observe(el, { childList: true, subtree: true });
+        observers.push(obs);
+    });
+
+    const safetyTimeout = setTimeout(() => {
+        observers.forEach(o => o.disconnect());
+        runAnimation(check());
+    }, 15000);
+}
+
+
 // Expose globally to prevent esbuild tree-shaking
 window.homeEntranceAnimation = homeEntranceAnimation;
+window.commonEntranceAnimation = commonEntranceAnimation;
