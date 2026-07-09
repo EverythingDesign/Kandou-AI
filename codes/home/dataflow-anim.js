@@ -302,7 +302,7 @@ function initDataFlowText() {
 
 
         //the powered by card
-        let copperMimoChars = "#copper-mimo .char";
+        let copperMimoChars = document.querySelectorAll("#copper-mimo .char");
         const copperMimoTl = gsap.timeline({
             scrollTrigger: {
                 trigger: triggerGroup[0],
@@ -338,7 +338,7 @@ function initDataFlowText() {
                     color: "#6adb2b",
                     duration: dataFlowDuration * 0.6,
                     ease: "power2.inOut",
-                    stagger: { each: dataFlowDuration / copperMimoChars.length },
+                    stagger: { each: copperMimoChars.length ? dataFlowDuration / copperMimoChars.length : 0 },
                 }, 0
             ).to(
                 copperMimoChars,
@@ -346,7 +346,7 @@ function initDataFlowText() {
                     color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
                     duration: dataFlowDuration * 0.6,
                     ease: "power2.inOut",
-                    stagger: { each: dataFlowDuration / copperMimoChars.length },
+                    stagger: { each: copperMimoChars.length ? dataFlowDuration / copperMimoChars.length : 0 },
                 },
                 0.4 + (dataFlowDuration * 0.4)
             ).to(
@@ -358,7 +358,7 @@ function initDataFlowText() {
                 }, 0.92
             )
         //the hbm chips card
-        let hbmChipsChars = "#hbm-chips .char";
+        let hbmChipsChars = document.querySelectorAll("#hbm-chips .char");
         const hbmChipsTl = gsap.timeline({
             scrollTrigger: {
                 trigger: triggerGroup[1],
@@ -376,7 +376,7 @@ function initDataFlowText() {
                     color: "#6adb2b",
                     duration: dataFlowDuration * 0.6,
                     ease: "power2.inOut",
-                    stagger: { each: dataFlowDuration / hbmChipsChars.length },
+                    stagger: { each: hbmChipsChars.length ? dataFlowDuration / hbmChipsChars.length : 0 },
                 },
             ).to(
                 hbmChipsChars,
@@ -384,13 +384,13 @@ function initDataFlowText() {
                     color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
                     duration: dataFlowDuration * 0.6,
                     ease: "power2.inOut",
-                    stagger: { each: dataFlowDuration / hbmChipsChars.length },
+                    stagger: { each: hbmChipsChars.length ? dataFlowDuration / hbmChipsChars.length : 0 },
                 },
                 0.4 + (dataFlowDuration * 0.4)
             )
 
         //the new gen ai  card
-        let newGenAIChars = "#new-gen-ai .char";
+        let newGenAIChars = document.querySelectorAll("#new-gen-ai .char");
         const newGenAITl = gsap.timeline({
             scrollTrigger: {
                 trigger: triggerGroup[2],
@@ -408,7 +408,7 @@ function initDataFlowText() {
                     color: "#6adb2b",
                     duration: dataFlowDuration * 0.6,
                     ease: "power2.inOut",
-                    stagger: { each: dataFlowDuration / newGenAIChars.length },
+                    stagger: { each: newGenAIChars.length ? dataFlowDuration / newGenAIChars.length : 0 },
                 },
             ).to(
                 newGenAIChars,
@@ -416,7 +416,7 @@ function initDataFlowText() {
                     color: (index, target) => target.closest("strong") ? "#6adb2b" : "#fff",
                     duration: dataFlowDuration * 0.6,
                     ease: "power2.inOut",
-                    stagger: { each: dataFlowDuration / newGenAIChars.length },
+                    stagger: { each: newGenAIChars.length ? dataFlowDuration / newGenAIChars.length : 0 },
                 },
                 0.4 + (dataFlowDuration * 0.4)
             );
