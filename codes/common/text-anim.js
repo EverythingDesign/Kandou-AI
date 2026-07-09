@@ -116,7 +116,7 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
     const headingEl = document.querySelector("[entrance-head]");
     const subheadEl = document.querySelector("[entrance-subhead]");
     const subParaEl = document.querySelector("[entrance-subpara]");
-    const subImgEl = document.querySelector("[entrance-img]");
+    const subImgEl = document.querySelectorAll("[entrance-img]");
 
     // if (!headingEl && !subheadEl && !subParaEl && !subImgEl) return;
 
@@ -191,12 +191,7 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
                     duration: 0.5,
                     ease: "power1.out",
                 }, ">=")
-                .to(subImgEl, {
-                    opacity: 1,
-                    y: "0%",
-                    duration: 0.5,
-                    ease: "power1.out",
-                }, "<")
+
         }
         if (subParaChars.length > 0) {
             master
@@ -213,12 +208,16 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
                     ease: "power2.inOut",
                     stagger: { each: duration / subParaChars.length },
                 }, duration * 0.4)
+
+        }
+        if (subImgEl) {
+            master
                 .to(subImgEl, {
                     opacity: 1,
                     y: "0%",
                     duration: 0.5,
                     ease: "power1.out",
-                }, "<0.1")
+                }, 0)
         }
     };
 
