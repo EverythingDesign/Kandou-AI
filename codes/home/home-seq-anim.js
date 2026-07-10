@@ -70,39 +70,30 @@ function setupHeroAnimations({ frameCount, label }) {
     });
 
     DIALOGUE_ANIMATIONS.forEach(({ sel, start, end, out }) => {
+        const words = document.querySelectorAll(`${sel} .char`);
         const duration = end - start;
 
-        // Lazy-resolve chars at play time, not at setup time.
-        // On Safari, seq:init fires before SplitText has created .char nodes,
-        // so querying here would return an empty NodeList.
         master.to(
-            { _dummy: 0 },
+            words,
             {
-                _dummy: 1,
-                duration: duration,
-                ease: "none",
-                onStart() {
-                    const words = document.querySelectorAll(`${sel} .char`);
-                    if (!words.length) return;
-
-                    gsap.to(words, {
-                        opacity: 1,
-                        color: startColor,
-                        duration: duration * 0.6,
-                        ease: "power2.inOut",
-                        stagger: { each: duration / words.length },
-                    });
-
-                    gsap.to(words, {
-                        color: (index, target) => target.closest("strong") ? "#6adb2b" : endColor,
-                        duration: duration * 0.6,
-                        ease: "power2.inOut",
-                        stagger: { each: duration / words.length },
-                        delay: duration * 0.4,
-                    });
-                },
+                opacity: 1,
+                color: startColor,
+                duration: duration * 0.6,
+                ease: "power2.inOut",
+                stagger: { each: duration / words.length },
             },
             start
+        );
+
+        master.to(
+            words,
+            {
+                color: (index, target) => target.closest("strong") ? "#6adb2b" : endColor,
+                duration: duration * 0.6,
+                ease: "power2.inOut",
+                stagger: { each: duration / words.length },
+            },
+            start + duration * 0.4
         );
 
         if (out) {
@@ -127,12 +118,43 @@ function setupHeroAnimations({ frameCount, label }) {
     });
 }
 
-// Run immediately if seq:init already fired, otherwise wait
+// Wait for .char nodes to exist before setting up animations.
+// On Safari, seq:init fires (async fetch resolves) before SplitText has
+// created .char nodes, so querySelectorAll inside setupHeroAnimations
+// would return empty NodeLists. We poll/observe until chars are ready.
+function waitForCharsAndSetup(initData) {
+    const firstSel = "#home-dialogue-g1-1 .char";
+    const hasChars = () => document.querySelectorAll(firstSel).length > 0;
+
+    if (hasChars()) {
+        setupHeroAnimations(initData);
+        return;
+    }
+
+    let settle;
+    const obs = new MutationObserver(() => {
+        if (!hasChars()) return;
+        clearTimeout(settle);
+        settle = setTimeout(() => {
+            obs.disconnect();
+            clearTimeout(safety);
+            setupHeroAnimations(initData);
+        }, 100);
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+
+    // Safety: if chars never appear (e.g. SplitText not loaded), run anyway
+    const safety = setTimeout(() => {
+        obs.disconnect();
+        setupHeroAnimations(initData);
+    }, 10000);
+}
+
 if (window.__seqInit?.["kandou-seq"]) {
-    setupHeroAnimations(window.__seqInit["kandou-seq"]);
+    waitForCharsAndSetup(window.__seqInit["kandou-seq"]);
 } else {
     window.addEventListener("seq:init", ({ detail }) => {
-        if (detail.label === "kandou-seq") setupHeroAnimations(detail);
+        if (detail.label === "kandou-seq") waitForCharsAndSetup(detail);
     });
 }
 
