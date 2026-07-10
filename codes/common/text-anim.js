@@ -256,6 +256,82 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
 }
 
 
+function commonHeadingEntranceAnimation(endColorHead = "#ffffff") {
+    const headingEls = document.querySelectorAll("[section-head]");
+
+    if (!headingEls.length) return;
+
+    const startColor = "#6adb2b";
+    const duration = 0.45;
+
+    headingEls.forEach((headingEl) => {
+        const check = () => {
+            const headChars = headingEl.querySelectorAll(".char");
+            return headChars.length > 0 ? { headChars } : null;
+        };
+
+        const runAnimation = (splitData) => {
+            const headChars = splitData ? splitData.headChars : [headingEl];
+
+            const master = gsap.timeline({
+                scrollTrigger: {
+                    trigger: headingEl,
+                    start: "top 90%",
+                    end: "+=500",
+                    // scrub: true,
+                }
+            });
+
+            gsap.set(headingEl, { opacity: 1 });
+            gsap.set(Array.from(headChars), { opacity: 0 });
+
+            if (headChars.length > 0) {
+                master
+                    .to(headChars, {
+                        opacity: 1,
+                        color: startColor,
+                        duration: duration * 0.6,
+                        ease: "power2.inOut",
+                        stagger: { each: duration / headChars.length },
+                    }, 0)
+                    .to(headChars, {
+                        color: (index, target) => target.closest("strong") ? "#6adb2b" : endColorHead,
+                        duration: duration * 0.6,
+                        ease: "power2.inOut",
+                        stagger: { each: duration / headChars.length },
+                    }, duration * 0.4);
+            }
+        };
+
+        const initialSplit = check();
+        if (initialSplit) {
+            runAnimation(initialSplit);
+            return;
+        }
+
+        // Chars not ready yet — wait for SplitText via MutationObserver
+        let settle;
+        const obs = new MutationObserver(() => {
+            if (!check()) return;
+            clearTimeout(settle);
+            settle = setTimeout(() => {
+                obs.disconnect();
+                clearTimeout(safetyTimeout);
+                runAnimation(check());
+            }, 100);
+        });
+
+        obs.observe(headingEl, { childList: true, subtree: true });
+
+        const safetyTimeout = setTimeout(() => {
+            obs.disconnect();
+            runAnimation(check());
+        }, 15000);
+    });
+}
+
+
 // Expose globally to prevent esbuild tree-shaking
 window.homeEntranceAnimation = homeEntranceAnimation;
 window.commonEntranceAnimation = commonEntranceAnimation;
+window.commonHeadingEntranceAnimation = commonHeadingEntranceAnimation;
