@@ -164,7 +164,7 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
                     stagger: { each: duration / headChars.length },
                 }, 0)
                 .to(headChars, {
-                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColorHead,
+                    color: (index, target) => target.closest("strong") ? "#010101" : endColorHead,
                     duration: duration * 0.6,
                     ease: "power2.inOut",
                     stagger: { each: duration / headChars.length },
@@ -181,7 +181,7 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
                     stagger: { each: duration / subChars.length },
                 }, 0)
                 .to(subChars, {
-                    color: (index, target) => target.closest("strong") ? "#6adb2b" : endColorHead,
+                    color: (index, target) => target.closest("strong") ? "#010101" : endColorHead,
                     duration: duration * 0.6,
                     ease: "power2.inOut",
                     stagger: { each: duration / subChars.length },
@@ -295,7 +295,7 @@ function commonHeadingEntranceAnimation(endColorHead = "#ffffff") {
                         stagger: { each: duration / headChars.length },
                     }, 0)
                     .to(headChars, {
-                        color: (index, target) => target.closest("strong") ? "#6adb2b" : endColorHead,
+                        color: (index, target) => target.closest("strong") ? "#010101" : endColorHead,
                         duration: duration * 0.6,
                         ease: "power2.inOut",
                         stagger: { each: duration / headChars.length },
