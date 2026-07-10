@@ -181,7 +181,7 @@ function commonEntranceAnimation(endColorHead = "#ffffff", endColorPara = "#fff"
                     stagger: { each: duration / subChars.length },
                 }, 0)
                 .to(subChars, {
-                    color: (index, target) => target.closest("strong") ? "#696969" : endColorHead,
+                    color: (index, target) => target.closest("strong") ? "#696969" : "#696969",
                     duration: duration * 0.6,
                     ease: "power2.inOut",
                     stagger: { each: duration / subChars.length },
