@@ -264,20 +264,31 @@ function commonHeadingEntranceAnimation(endColorHead = "#ffffff") {
     const startColor = "#6adb2b";
     const duration = 0.45;
 
+    const isAlreadyInViewport = (headingEl) => {
+        const rect = headingEl.getBoundingClientRect();
+        return rect.top < window.innerHeight * 0.9 && rect.bottom > 0;
+    };
+
     headingEls.forEach((headingEl) => {
+        let hasStarted = false;
+
         const check = () => {
             const headChars = headingEl.querySelectorAll(".char");
             return headChars.length > 0 ? { headChars } : null;
         };
 
-        const runAnimation = (splitData) => {
-            const headChars = splitData ? splitData.headChars : [headingEl];
+        const startAnimation = (splitData) => {
+            if (hasStarted) return;
+            hasStarted = true;
 
+            const headChars = splitData ? splitData.headChars : [headingEl];
             const master = gsap.timeline({
                 scrollTrigger: {
                     trigger: headingEl,
                     start: "top 90%",
                     end: "+=500",
+                    once: true,
+                    toggleActions: "play none none none",
                     // scrub: true,
                 }
             });
@@ -303,13 +314,21 @@ function commonHeadingEntranceAnimation(endColorHead = "#ffffff") {
             }
         };
 
-        const initialSplit = check();
-        if (initialSplit) {
-            runAnimation(initialSplit);
+        const tryStart = () => {
+            const initialSplit = check();
+            if (initialSplit) {
+                startAnimation(initialSplit);
+            }
+        };
+
+        if (isAlreadyInViewport(headingEl)) {
+            tryStart();
             return;
         }
 
-        // Chars not ready yet — wait for SplitText via MutationObserver
+        // Chars not ready yet — wait for SplitText via MutationObserver.
+        // If the page loads below the trigger point, the ScrollTrigger will
+        // start the animation when the heading enters the viewport.
         let settle;
         const obs = new MutationObserver(() => {
             if (!check()) return;
@@ -317,7 +336,7 @@ function commonHeadingEntranceAnimation(endColorHead = "#ffffff") {
             settle = setTimeout(() => {
                 obs.disconnect();
                 clearTimeout(safetyTimeout);
-                runAnimation(check());
+                tryStart();
             }, 100);
         });
 
@@ -325,8 +344,18 @@ function commonHeadingEntranceAnimation(endColorHead = "#ffffff") {
 
         const safetyTimeout = setTimeout(() => {
             obs.disconnect();
-            runAnimation(check());
+            tryStart();
         }, 15000);
+
+        ScrollTrigger.create({
+            trigger: headingEl,
+            start: "top 90%",
+            once: true,
+            toggleActions: "play none none none",
+            onEnter: () => {
+                tryStart();
+            },
+        });
     });
 }
 
