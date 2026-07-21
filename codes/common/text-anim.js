@@ -72,7 +72,7 @@ function homeEntranceAnimation(headingWrap, secondaryWrap = null, endColor = "#f
                         duration: 0.5,
                         ease: "power1.out",
                     },
-                    duration * 0.4
+                    duration * 0.7
                 );
             }
         };
