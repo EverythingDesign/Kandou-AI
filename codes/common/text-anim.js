@@ -63,7 +63,7 @@ function homeEntranceAnimation(headingWrap, secondaryWrap = null, endColor = "#f
                 duration * 0.4
             );
 
-            // 3. Make secondary opacity 1 after heading finishes
+            // 3. Make secondary opacity 1 halfway through heading animation
             if (secondaryEl) {
                 master.to(
                     secondaryEl,
@@ -72,7 +72,7 @@ function homeEntranceAnimation(headingWrap, secondaryWrap = null, endColor = "#f
                         duration: 0.5,
                         ease: "power1.out",
                     },
-                    ">"
+                    duration * 0.2
                 );
             }
         };
